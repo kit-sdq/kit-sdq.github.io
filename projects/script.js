@@ -1,12 +1,23 @@
-function httpGetAsync(theUrl, callback)
+function httpGetAsync(theUrl, callback, githubPreviewHeader = false)
 {
-    var xmlHttp = new XMLHttpRequest();
-    xmlHttp.onreadystatechange = function() { 
-        if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
-            callback(xmlHttp.responseText);
-    }
-    xmlHttp.open("GET", theUrl, true);
-    xmlHttp.send(null);
+	var xmlHttp = new XMLHttpRequest();
+	xmlHttp.onreadystatechange = function() {
+		if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+			callback(xmlHttp.responseText);
+	}
+	xmlHttp.open("GET", theUrl, true);
+	if (theUrl.includes('https://api.github.com')) {
+		//xmlHttp.setRequestHeader('Authorization', 'token OAUTHTOKEN');
+	}
+
+	if (githubPreviewHeader) {
+		xmlHttp.setRequestHeader('Accept', 'application/vnd.github.mercy-preview+json');
+	}
+	xmlHttp.send(null);
+}
+
+function httpGetAsyncPreview(theUrl, callback) {
+	httpGetAsync(theUrl, callback, true);
 }
 
 function fillTable(domId, responseText) {
@@ -24,8 +35,18 @@ function fillTable(domId, responseText) {
 		var ownerCellHtml = document.createElement('td');
 		rowHtml.appendChild(ownerCellHtml);
 		setCodeOwner(ownerCellHtml, repo['full_name']);
+		var topicCellHtml = document.createElement('td');
+		rowHtml.appendChild(topicCellHtml);
+		setTopics(repo['topics'], topicCellHtml, nameLinkHtml);
 	});
 	sortTable(repoListHtml);
+}
+
+function setTopics(topics, domElement, domElementRepoName) {
+	domElement.textContent = topics.join(', ');
+	if (topics.includes('discontinued')) {
+		domElementRepoName.style.textDecoration = "line-through";
+	}
 }
 
 function sortTable(trHoldingElement) {
@@ -95,5 +116,5 @@ function findAllMatches(regex, str, groupIndex) {
 }
 
 function fillTableForOrganisation(org, domId) {
-	httpGetAsync('https://api.github.com/orgs/kit-sdq/repos', response => fillTable(domId, response))
+	httpGetAsyncPreview('https://api.github.com/orgs/' + org + '/repos', response => fillTable(domId, response))
 }
