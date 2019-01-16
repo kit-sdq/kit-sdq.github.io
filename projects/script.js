@@ -74,12 +74,14 @@ function setCodeOwnerInDom(domElement, codeOwners) {
 
 function generateOwnerLink(username) {
 	var nameElement = document.createElement('a');
-	nameElement.textContent = username
+	nameElement.textContent = '@' + username
 	nameElement.setAttribute('href', '#');
 	
 	httpGetAsync('https://api.github.com/users/' + username, response => {
-		var user = JSON.parse(response);
-		nameElement.textContent = user['name'] + ' (@' + user['login'] + ')';
+		const user = JSON.parse(response);
+		if (user['name']) {
+			nameElement.textContent = user['name'] + ' (@' + user['login'] + ')';
+		}
 		nameElement.setAttribute('href', user['html_url']);
 	});
 	
