@@ -73,7 +73,9 @@ function setCodeOwnerInDom(domElement, codeOwners) {
 }
 
 function generateOwnerLink(username) {
+	var divElement = document.createElement('div');
 	var nameElement = document.createElement('a');
+	divElement.appendChild(nameElement);
 	nameElement.textContent = '@' + username
 	nameElement.setAttribute('href', '#');
 	
@@ -85,7 +87,7 @@ function generateOwnerLink(username) {
 		nameElement.setAttribute('href', user['html_url']);
 	});
 	
-	return nameElement
+	return divElement;
 }
 
 function determineCodeOwner(codeOwnersFileContent) {
