@@ -1,4 +1,5 @@
 const reposWithoutOwners = ['updatesite'];
+const discontinuedTag = 'discontinued';
 
 function httpGetAsync(theUrl, callback, githubPreviewHeader = false)
 {
@@ -46,7 +47,7 @@ function fillTable(domId, responseText) {
 
 function setTopics(topics, domElement, domElementRepoName, docElementOwnerName) {
 	domElement.textContent = topics.join(', ');
-	if (topics.includes('discontinued')) {
+	if (topics.includes(discontinuedTag)) {
 		domElementRepoName.style.textDecoration = "line-through";
 		// Remove n/a for discontinued projects without an owner
 		if (docElementOwnerName.textContent == 'n/a') {
