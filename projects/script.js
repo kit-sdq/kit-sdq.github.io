@@ -37,15 +37,20 @@ function fillTable(domId, responseText) {
 		setCodeOwner(ownerCellHtml, repo['full_name']);
 		var topicCellHtml = document.createElement('td');
 		rowHtml.appendChild(topicCellHtml);
-		setTopics(repo['topics'], topicCellHtml, nameLinkHtml);
+		setTopics(repo['topics'], topicCellHtml, nameLinkHtml, ownerCellHtml);
 	});
 	sortTable(repoListHtml);
 }
 
-function setTopics(topics, domElement, domElementRepoName) {
+function setTopics(topics, domElement, domElementRepoName, docElementOwnerName) {
 	domElement.textContent = topics.join(', ');
 	if (topics.includes('discontinued')) {
 		domElementRepoName.style.textDecoration = "line-through";
+		// Remove n/a for discontinued projects without an owner
+		if (docElementOwnerName.textContent == 'n/a') {
+			docElementOwnerName.textContent = '';
+		}
+		docElementOwnerName.style.textDecoration = "line-through";
 	}
 }
 
