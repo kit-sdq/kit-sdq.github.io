@@ -1,3 +1,5 @@
+const reposWithoutOwners = ['updatesite'];
+
 function httpGetAsync(theUrl, callback, githubPreviewHeader = false)
 {
 	var xmlHttp = new XMLHttpRequest();
@@ -65,9 +67,12 @@ function sortTable(trHoldingElement) {
 }
 
 function setCodeOwner(domElement, fullRepoName) {
-	domElement.textContent = 'n/a';
-	httpGetAsync('https://raw.githubusercontent.com/' + fullRepoName + '/master/.github/CODEOWNERS', response => {setCodeOwnerInDom(domElement, determineCodeOwner(response))});
-	httpGetAsync('https://raw.githubusercontent.com/' + fullRepoName + '/master/docs/CODEOWNERS', response => {setCodeOwnerInDom(domElement, determineCodeOwner(response))});
+	const repoWithoutOrganization = fullRepoName.split('/')[1];
+	if (!reposWithoutOwners.includes(repoWithoutOrganization)) {
+		domElement.textContent = 'n/a';
+		httpGetAsync('https://raw.githubusercontent.com/' + fullRepoName + '/master/.github/CODEOWNERS', response => {setCodeOwnerInDom(domElement, determineCodeOwner(response))});
+		httpGetAsync('https://raw.githubusercontent.com/' + fullRepoName + '/master/docs/CODEOWNERS', response => {setCodeOwnerInDom(domElement, determineCodeOwner(response))});
+	}
 }
 
 function setCodeOwnerInDom(domElement, codeOwners) {
