@@ -1,3 +1,7 @@
+const reposWithoutOwners = ['updatesite'];
+const discontinuedTag = 'discontinued';
+const archivedTag = 'archived';
+
 function httpGetAsync(theUrl, callback, githubPreviewHeader = false)
 {
 	var xmlHttp = new XMLHttpRequest();
@@ -41,15 +45,20 @@ function fillTable(domId, responseText) {
 		if (repo['archived']) {
 			topics.push('archived')
 		}
-		setTopics(topics, topicCellHtml, nameLinkHtml);
+		setTopics(topics, topicCellHtml, nameLinkHtml, ownerCellHtml);
 	});
 	sortTable(repoListHtml);
 }
 
-function setTopics(topics, domElement, domElementRepoName) {
+function setTopics(topics, domElement, domElementRepoName, docElementOwnerName) {
 	domElement.textContent = topics.join(', ');
-	if (topics.includes('discontinued') || topics.includes('archived')) {
+	if (topics.includes(discontinuedTag) || topics.includes(archivedTag)) {
 		domElementRepoName.style.textDecoration = "line-through";
+		// Remove n/a for discontinued projects without an owner
+		if (docElementOwnerName.textContent == 'n/a') {
+			docElementOwnerName.textContent = '';
+		}
+		docElementOwnerName.style.textDecoration = "line-through";
 	}
 }
 
@@ -64,9 +73,12 @@ function sortTable(trHoldingElement) {
 }
 
 function setCodeOwner(domElement, fullRepoName) {
-	domElement.textContent = 'n/a';
-	httpGetAsync('https://raw.githubusercontent.com/' + fullRepoName + '/master/.github/CODEOWNERS', response => {setCodeOwnerInDom(domElement, determineCodeOwner(response))});
-	httpGetAsync('https://raw.githubusercontent.com/' + fullRepoName + '/master/docs/CODEOWNERS', response => {setCodeOwnerInDom(domElement, determineCodeOwner(response))});
+	const repoWithoutOrganization = fullRepoName.split('/')[1];
+	if (!reposWithoutOwners.includes(repoWithoutOrganization)) {
+		domElement.textContent = 'n/a';
+		httpGetAsync('https://raw.githubusercontent.com/' + fullRepoName + '/master/.github/CODEOWNERS', response => {setCodeOwnerInDom(domElement, determineCodeOwner(response))});
+		httpGetAsync('https://raw.githubusercontent.com/' + fullRepoName + '/master/docs/CODEOWNERS', response => {setCodeOwnerInDom(domElement, determineCodeOwner(response))});
+	}
 }
 
 function setCodeOwnerInDom(domElement, codeOwners) {
