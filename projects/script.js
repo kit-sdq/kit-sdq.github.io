@@ -37,14 +37,18 @@ function fillTable(domId, responseText) {
 		setCodeOwner(ownerCellHtml, repo['full_name']);
 		var topicCellHtml = document.createElement('td');
 		rowHtml.appendChild(topicCellHtml);
-		setTopics(repo['topics'], topicCellHtml, nameLinkHtml);
+		var topics = repo['topics']
+		if (repo['archived']) {
+			topics.push('archived')
+		}
+		setTopics(topics, topicCellHtml, nameLinkHtml);
 	});
 	sortTable(repoListHtml);
 }
 
 function setTopics(topics, domElement, domElementRepoName) {
 	domElement.textContent = topics.join(', ');
-	if (topics.includes('discontinued')) {
+	if (topics.includes('discontinued') || topics.includes('archived')) {
 		domElementRepoName.style.textDecoration = "line-through";
 	}
 }
