@@ -6,8 +6,17 @@ function httpGetAsync(theUrl, callback, githubPreviewHeader = false)
 {
 	var xmlHttp = new XMLHttpRequest();
 	xmlHttp.onreadystatechange = function() {
-		if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+		if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
 			callback(xmlHttp.responseText);
+			const linkHeader = xmlHttp.getResponseHeader('link');
+			if (linkHeader != null) {
+				const nextUrlRegex = /<([^>]+)>; rel="next"/gm;
+				const matches = findAllMatches(nextUrlRegex, linkHeader, 1);
+				if (matches.length == 1) {
+					httpGetAsync(matches[0], callback, githubPreviewHeader);
+				}
+			}
+		}
 	}
 	xmlHttp.open("GET", theUrl, true);
 	if (theUrl.includes('https://api.github.com')) {
